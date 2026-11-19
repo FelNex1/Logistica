@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Планирование автомобильных перевозок</title>
+    <!-- Подключаем стили -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+    <div class="header">
+        <h1>Планирование автомобильных перевозок</h1>
+        <div class="role">Роль: Логист</div>
+    </div>
+
+    <!-- Меню (вкладки) -->
+    <div class="tabs">
+        <a href="/" class="tab {% if request.path == '/' %}active{% endif %}">Заказы и транспорт</a>
+        <a href="/coordinates" class="tab {% if request.path == '/coordinates' %}active{% endif %}">Ограничения и координаты</a>
+        <a href="/map" class="tab {% if request.path == '/map' %}active{% endif %}">Схема маршрутов</a>
+        <a href="/plan" class="tab {% if request.path == '/plan' %}active{% endif %}">План по машинам</a>
+        <a href="/report" class="tab {% if request.path == '/report' %}active{% endif %}">Отчёт и нарушения</a>
+    </div>
+
+    <!-- Сюда будет вставляться содержимое конкретной страницы -->
+    <div class="content" style="display: block;">
+        {% block content %}{% endblock %}
+    </div>
+
+    <!-- Подключаем скрипты -->
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
