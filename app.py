@@ -163,29 +163,49 @@ def get_coordinates():
 
 @app.route('/api/coordinates', methods=['POST'])
 def save_coordinates():
-    """Сохраняет измененные координаты в БД."""
+    """Сохраняет измененные координаты в БД с проверкой ограничений и удалением лишних."""
     data = request.json
     points_data = data.get('points', {})
     
-    # Сохраняем/обновляем каждую точку в базе данных
+    # 1. Валидация
     for name, coords in points_data.items():
-        point = Point.query.filter_by(name=name).first()
-        if point:
-            point.x_coord = coords[0]
-            point.y_coord = coords[1]
-        else:
-            new_point = Point(name=name, x_coord=coords[0], y_coord=coords[1])
-            db.session.add(new_point)
+        if not name.strip():
+            return jsonify({"status": "error", "message": "Название точки не может быть пустым!"}), 400
             
-    db.session.commit()
+        try:
+            x = float(coords[0])
+            y = float(coords[1])
+        except ValueError:
+            return jsonify({"status": "error", "message": f"Координаты для точки '{name}' должны быть числами!"}), 400
+            
+        if not (0 <= x <= 500) or not (0 <= y <= 500):
+            return jsonify({"status": "error", "message": f"Ошибка: Точка '{name}' выходит за границы (0-500)."}), 400
+
+    # 2. Сохранение и удаление
+    try:
+        # Получаем список имен точек, которые сейчас есть в базе
+        existing_points = Point.query.all()
         
-    return jsonify({"status": "success", "message": "Координаты сохранены в БД!"})
+        # Удаляем те точки, которых НЕТ в присланных данных
+        for point in existing_points:
+            if point.name not in points_data:
+                db.session.delete(point)
         
-    # Сохраняем настройки в JSON (пока так)
-    with open(os.path.join('data', 'settings.json'), 'w', encoding='utf-8') as f:
-        json.dump(data.get('settings', {}), f, ensure_ascii=False, indent=4)
-        
-    return jsonify({"status": "success", "message": "Данные сохранены!"})
+        # Обновляем существующие или добавляем новые
+        for name, coords in points_data.items():
+            point = Point.query.filter_by(name=name).first()
+            if point:
+                point.x_coord = float(coords[0])
+                point.y_coord = float(coords[1])
+            else:
+                new_point = Point(name=name, x_coord=float(coords[0]), y_coord=float(coords[1]))
+                db.session.add(new_point)
+                
+        db.session.commit()
+        return jsonify({"status": "success", "message": "Данные координат обновлены!"})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"status": "error", "message": str(e)}), 500
 
 @app.route('/api/orders', methods=['POST'])
 def add_order():

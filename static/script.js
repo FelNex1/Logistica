@@ -236,40 +236,53 @@ function loadCoordinates() {
         .catch(error => console.error('Ошибка загрузки координат:', error));
 }
 
-function addPointToTable(name = '', x = '', y = '') {
-    const table = document.getElementById('points-table');
-    const row = table.insertRow();
-    row.innerHTML = `
-        <td><input type="text" value="${name}" style="width: 90%; padding: 5px; background: transparent; border: none; border-bottom: 1px solid #000; font-weight: bold;"></td>
-        <td><input type="number" value="${x}" style="width: 70%; padding: 5px; background: transparent; border: none; border-bottom: 1px solid #000; font-weight: bold;"></td>
-        <td><input type="number" value="${y}" style="width: 70%; padding: 5px; background: transparent; border: none; border-bottom: 1px solid #000; font-weight: bold;"></td>
-    `;
+function addPointRow() {
+    addPointToTable('', '', '');
 }
 
-function addPointRow() {
-    addPointToTable();
+function addPointToTable(name = '', x = '', y = '') {
+    const table = document.getElementById('points-table');
+    if (!table) return;
+
+    const row = table.insertRow();
+    
+    // Очищаем возможные пробелы
+    const safeName = String(name).replace(/"/g, '&quot;');
+    
+    // Создаем ячейки вручную (это надежнее, чем innerHTML)
+    row.insertCell(0).innerHTML = `<input type="text" value="${safeName}" style="width: 90%; padding: 5px; background: transparent; border: none; border-bottom: 1px solid #000; font-weight: bold;">`;
+    row.insertCell(1).innerHTML = `<input type="number" value="${x}" style="width: 70%; padding: 5px; background: transparent; border: none; border-bottom: 1px solid #000; font-weight: bold;">`;
+    row.insertCell(2).innerHTML = `<input type="number" value="${y}" style="width: 70%; padding: 5px; background: transparent; border: none; border-bottom: 1px solid #000; font-weight: bold;">`;
+    
+    // Ячейка с кнопкой удаления
+    const actionCell = row.insertCell(3);
+    actionCell.style.textAlign = "center";
+    actionCell.innerHTML = `<button onclick="deletePointRow(this)" style="background: #e74c3c; color: white; border: none; border-radius: 50%; width: 25px; height: 25px; cursor: pointer; font-weight: bold;" title="Удалить точку">✕</button>`;
+}
+
+function deletePointRow(btn) {
+    // btn - это кнопка. btn.parentNode - это ячейка (td). btn.parentNode.parentNode - это строка (tr).
+    const row = btn.parentNode.parentNode;
+    row.parentNode.removeChild(row);
 }
 
 function saveAllData() {
-    // Собираем настройки
     const settings = {
         max_route_time: parseInt(document.getElementById('max-time').value),
         shift_start: document.getElementById('shift-start').value,
         shift_end: document.getElementById('shift-end').value
     };
 
-    // Собираем координаты из таблицы
     const points = {};
     const rows = document.querySelectorAll('#points-table tr');
     
-    // Пропускаем первую строку (заголовок)
     for (let i = 1; i < rows.length; i++) {
         const inputs = rows[i].querySelectorAll('input');
         const name = inputs[0].value.trim();
         const x = parseFloat(inputs[1].value);
         const y = parseFloat(inputs[2].value);
         
-        if (name && !isNaN(x) && !isNaN(y)) {
+        if (name) {
             points[name] = [x, y];
         }
     }
@@ -283,11 +296,22 @@ function saveAllData() {
     .then(response => response.json())
     .then(data => {
         const resDiv = document.getElementById('save-result');
-        resDiv.className = 'success';
-        resDiv.style.padding = '10px';
         resDiv.style.display = 'inline-block';
-        resDiv.innerHTML = 'Координаты успешно сохранены в базу данных!';
-        setTimeout(() => { resDiv.innerHTML = ''; resDiv.style.display = 'none'; }, 3000);
+        resDiv.style.padding = '10px';
+        
+        if (data.status === 'error') {
+            // Показываем ошибку красным
+            resDiv.className = 'error';
+            resDiv.innerHTML = data.message;
+        } else {
+            // Показываем успех зеленым
+            resDiv.className = 'success';
+            resDiv.innerHTML = 'Координаты успешно сохранены!';
+            setTimeout(() => { resDiv.style.display = 'none'; }, 3000);
+        }
+    })
+    .catch(error => {
+        console.error('Ошибка:', error);
     });
 }
 
