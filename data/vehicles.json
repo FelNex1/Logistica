@@ -1,0 +1,6 @@
+[
+  {"id": 1, "name": "Газель", "license_plate": "A423BC", "capacity": 1500},
+  {"id": 2, "name": "Газель", "license_plate": "T223DB", "capacity": 1500},
+  {"id": 3, "name": "Фургон", "license_plate": "B777AA", "capacity": 3000},
+  {"id": 4, "name": "Фургон", "license_plate": "M555MM", "capacity": 3000}
+]

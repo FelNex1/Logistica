@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <!-- Форма добавления заказа (скрыта по умолчанию) -->
+    <div id="add-order-form" style="display: none; background: #fff; padding: 20px; margin-bottom: 20px; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+        <h3>Новый заказ</h3>
+        <input type="text" id="o-pickup" placeholder="Откуда (например, склад)" value="склад" style="padding: 5px; margin: 5px;">
+        <input type="text" id="o-delivery" placeholder="Куда (например, A)" style="padding: 5px; margin: 5px;">
+        <input type="text" id="o-time" placeholder="Время (9.00-12.00)" style="padding: 5px; margin: 5px;">
+        <input type="number" id="o-weight" placeholder="Вес (кг)" style="padding: 5px; margin: 5px;">
+        <button class="btn" style="padding: 5px 15px;" onclick="submitOrder()">Сохранить</button>
+        <button class="btn" style="padding: 5px 15px; background: #e74c3c;" onclick="document.getElementById('add-order-form').style.display='none'">Отмена</button>
+    </div>
+
+    <!-- Форма добавления машины (скрыта по умолчанию) -->
+    <div id="add-vehicle-form" style="display: none; background: #fff; padding: 20px; margin-bottom: 20px; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+        <h3>Новый автомобиль</h3>
+        <input type="text" id="v-name" placeholder="Название (Газель)" style="padding: 5px; margin: 5px;">
+        <input type="text" id="v-plate" placeholder="Госномер (А123ВС)" style="padding: 5px; margin: 5px;">
+        <input type="number" id="v-capacity" placeholder="Грузоподъемность (кг)" style="padding: 5px; margin: 5px;">
+        <button class="btn" style="padding: 5px 15px;" onclick="submitVehicle()">Сохранить</button>
+        <button class="btn" style="padding: 5px 15px; background: #e74c3c;" onclick="document.getElementById('add-vehicle-form').style.display='none'">Отмена</button>
+    </div>
+
+    <div class="content">
+        <div class="panel">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h2>Заказы ({{ orders|length }})</h2>
+                <button class="btn" style="margin-top: 0; padding: 5px 10px;" onclick="document.getElementById('add-order-form').style.display='block'">Добавить заказ</button>
+            </div>
+            <table>
+                <tr><th>id</th><th>загрузка</th><th>доставка</th><th>время</th><th>вес</th></tr>
+                {% for order in orders %}
+                <tr>
+                    <td>{{ order.id }}</td><td>{{ order.pickup_point }}</td><td>{{ order.delivery_point }}</td>
+                    <td>{{ order.time_window }}</td><td>{{ order.cargo_weight }} кг</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+
+        <div class="panel">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h2>Транспорт ({{ vehicles|length }})</h2>
+                <button class="btn" style="margin-top: 0; padding: 5px 10px;" onclick="document.getElementById('add-vehicle-form').style.display='block'">Добавить машину</button>
+            </div>
+            <table>
+                <tr><th>id</th><th>название</th><th>госномер</th><th>грузоподъёмность</th></tr>
+                {% for vehicle in vehicles %}
+                <tr>
+                    <td>{{ vehicle.id }}</td><td>{{ vehicle.name }}</td>
+                    <td>{{ vehicle.license_plate }}</td><td>{{ vehicle.capacity }} кг</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+
+    <div style="text-align: center; margin-top: 20px;">
+        <button class="btn" onclick="checkData()">Проверить данные</button>
+        <div id="result" style="display: none; max-width: 500px; margin: 20px auto;"></div>
+    </div>
+{% endblock %}
