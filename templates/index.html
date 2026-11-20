@@ -8,8 +8,12 @@
                 <tr><th>id</th><th>загрузка</th><th>доставка</th><th>время</th><th>вес</th></tr>
                 {% for order in orders %}
                 <tr>
-                    <td>{{ order.id }}</td><td>{{ order.pickup }}</td><td>{{ order.delivery }}</td>
-                    <td>{{ order.time }}</td><td>{{ order.weight }} кг</td>
+                    <!-- Обрати внимание: здесь мы заменили order.pickup на order.pickup_point и т.д. -->
+                    <td>{{ order.id }}</td>
+                    <td>{{ order.pickup_point }}</td>
+                    <td>{{ order.delivery_point }}</td>
+                    <td>{{ order.time_window }}</td>
+                    <td>{{ order.cargo_weight }} кг</td>
                 </tr>
                 {% endfor %}
             </table>
@@ -21,8 +25,11 @@
                 <tr><th>id</th><th>название</th><th>госномер</th><th>грузоподъёмность</th></tr>
                 {% for vehicle in vehicles %}
                 <tr>
-                    <td>{{ vehicle.id }}</td><td>{{ vehicle.name }}</td>
-                    <td>{{ vehicle.license_plate }}</td><td>{{ vehicle.capacity }} кг</td>
+                    <!-- Тут поля назывались так же, поэтому их менять не пришлось -->
+                    <td>{{ vehicle.id }}</td>
+                    <td>{{ vehicle.name }}</td>
+                    <td>{{ vehicle.license_plate }}</td>
+                    <td>{{ vehicle.capacity }} кг</td>
                 </tr>
                 {% endfor %}
             </table>

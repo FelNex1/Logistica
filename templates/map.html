@@ -1,7 +1,73 @@
 {% extends "base.html" %}
+
 {% block content %}
     <div class="panel" style="margin: 20px;">
-        <h2>Карта или схематический маршрут</h2>
-        <p>Тут можно нарисовать схему маршрута (например, с помощью SVG или Canvas).</p>
+        <h2>Схема маршрутов</h2>
+        <p>Здесь отображается визуализация последних рассчитанных маршрутов.</p>
+        <canvas id="mapCanvas" width="800" height="500" style="border: 1px solid #ccc; background-color: #f9f9f9;"></canvas>
     </div>
+
+    <script>
+        // Ждем загрузки страницы и рисуем
+        document.addEventListener("DOMContentLoaded", function() {
+            drawMap();
+        });
+
+        function drawMap() {
+            const canvas = document.getElementById('mapCanvas');
+            const ctx = canvas.getContext('2d');
+
+            fetch('/api/map-data')
+                .then(response => response.json())
+                .then(data => {
+                    const points = data.points;
+                    const routes = data.routes;
+                    const colors = ['#e6194b', '#3cb44b', '#4363d8', '#f58231', '#911eb4']; // Цвета для разных машин
+
+                    // Настройки масштаба (наши координаты от 0 до ~400)
+                    const scale = 1.2; 
+
+                    // 1. Рисуем линии маршрутов
+                    routes.forEach((route, index) => {
+                        ctx.beginPath();
+                        ctx.strokeStyle = colors[index % colors.length];
+                        ctx.lineWidth = 3;
+                        
+                        route.stops.forEach((stopName, stopIndex) => {
+                            const pt = points[stopName];
+                            if (!pt) return;
+                            
+                            const drawX = pt.x * scale + 20; // +20 для отступов
+                            const drawY = pt.y * scale + 20;
+                            
+                            if (stopIndex === 0) {
+                                ctx.moveTo(drawX, drawY);
+                            } else {
+                                ctx.lineTo(drawX, drawY);
+                            }
+                        });
+                        ctx.stroke();
+                    });
+
+                    // 2. Рисуем точки и подписи
+                    for (const [name, pt] of Object.entries(points)) {
+                        const drawX = pt.x * scale + 20;
+                        const drawY = pt.y * scale + 20;
+
+                        // Кружочек
+                        ctx.beginPath();
+                        ctx.arc(drawX, drawY, 6, 0, 2 * Math.PI);
+                        ctx.fillStyle = name === "склад" ? "#000000" : "#3498db";
+                        ctx.fill();
+                        ctx.stroke();
+
+                        // Подпись
+                        ctx.fillStyle = "#333";
+                        ctx.font = "14px Arial";
+                        ctx.fillText(name, drawX + 10, drawY + 5);
+                    }
+                })
+                .catch(err => console.error("Ошибка загрузки данных карты:", err));
+        }
+    </script>
 {% endblock %}

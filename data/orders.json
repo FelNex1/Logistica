@@ -1,8 +1,0 @@
-[
-  {"id": 1, "pickup": "склад", "delivery": "A", "time": "9.00-12.00", "weight": 400},
-  {"id": 2, "pickup": "склад", "delivery": "B", "time": "9.00-13.00", "weight": 600},
-  {"id": 3, "pickup": "склад", "delivery": "C", "time": "9.00-12.00", "weight": 400},
-  {"id": 4, "pickup": "склад", "delivery": "D", "time": "9.00-13.00", "weight": 600},
-  {"id": 5, "pickup": "склад", "delivery": "C", "time": "9.00-12.00", "weight": 400},
-  {"id": 6, "pickup": "склад", "delivery": "A", "time": "9.00-13.00", "weight": 600}
-]
